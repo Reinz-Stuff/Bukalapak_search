@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-
+import json
 url = 'https://www.bukalapak.com/products?from=omnisearch&from_keyword_history=false&search%5Bkeywords%5D=ssd' \
       '&search_source=omnisearch_keyword&source=navbar '
 res = requests.get(url)
@@ -26,10 +26,9 @@ def get_total_page():
 
 
 def get_all_items():
-    j = 1
+    newlist = []
     soup = BeautifulSoup(res.text, 'html.parser')
     items = soup.find_all('div', 'bl-flex-item mb-8')
-    # print(items)
     for i in items:
         try:
             title = i.find('p', 'bl-text bl-text--body-14 bl-text--ellipsis__2').text.strip()
@@ -40,13 +39,18 @@ def get_all_items():
             links = i.find('a', 'bl-link')['href']
             location = i.find('span', 'mr-4 bl-product-card__location bl-text bl-text--body-14 bl-text--subdued '
                                       'bl-text--ellipsis__1').text
-            print(j, f'Product Name: {title}\nPrice: {price}\nStore: {store_name}\nLink: {links}\nLocation: {location}\n'
 
-            )
-            j += 1
         except AttributeError:
             pass
-
+        data_dict = {
+            'product': title,
+            'price': price,
+            'store': store_name,
+            'link': links,
+            'location': location
+        }
+        newlist.append(data_dict)
+    print(newlist)
 
 
 if __name__ == '__main__':
