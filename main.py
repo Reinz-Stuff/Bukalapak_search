@@ -1,9 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-url = 'https://www.bukalapak.com/products?from=omnisearch&from_keyword_history=false&search%5Bkeywords%5D=ssd' \
-      '&search_source=omnisearch_keyword&source=navbar '
-res = requests.get(url)
+import os
+import pandas as pd
+
+
+# query string parameters:
+# %3 is ?
+# %20 is space
+# %22 is quotes
+# %5B is '['
+# %5D is ']'
 
 
 # * nama produk
@@ -12,23 +19,20 @@ res = requests.get(url)
 # * link produk
 # * lokasi toko
 
-def get_total_page():
-    total_pages = []
 
-    soup = BeautifulSoup(res.text, 'html.parser')
-    listing = soup.find('ul', 'bl-pagination__list')
-    page = listing.find_all('li')
-    for i in page:
-        total_pages.append(i.text.strip())
-    total_pages.remove('…')
-    total = int(max(total_pages))
-    return total
+def get_all_items(page, search_keyword):
+    url = 'https://www.bukalapak.com/products?'
+    params = {
+        'page': page,
+        'search[keywords]': search_keyword
+    }
+    res = requests.get(url, params=params)
 
-
-def get_all_items():
     newlist = []
     soup = BeautifulSoup(res.text, 'html.parser')
     items = soup.find_all('div', 'bl-flex-item mb-8')
+    j = 1
+
     for i in items:
         try:
             title = i.find('p', 'bl-text bl-text--body-14 bl-text--ellipsis__2').text.strip()
@@ -42,6 +46,7 @@ def get_all_items():
 
         except AttributeError:
             pass
+        # Sorting data
         data_dict = {
             'product': title,
             'price': price,
@@ -50,8 +55,51 @@ def get_all_items():
             'location': location
         }
         newlist.append(data_dict)
-    print(newlist)
+
+    # Delete data berlebih di list
+    del newlist[50:len(newlist)]
+
+    # Writing json file
+    try:
+        os.mkdir('json_result')
+    except FileExistsError:
+        pass
+
+    with open(f'json_result/search_{search_keyword}_page_{page}.json', 'w+') as json_data:
+        json.dump(newlist, json_data)
+    print('json created')
+
+    # Writing vsc and excel file
+    try:
+        os.mkdir('data_result')
+    except FileExistsError:
+        pass
+
+    # Create CSV
+    df = pd.DataFrame(newlist)
+    df.to_csv(f'data_result/{search_keyword}.csv', index=False)
+    df.to_excel(f'data_result/{search_keyword}.xlsx', index=False)
+
+    # html file
+    try:
+        os.mkdir('temp')
+    except FileExistsError:
+        pass
+
+    with open('temp/result.html', 'w', encoding="utf-8") as f:
+        f.write(res.text)
+        f.close()
+
+    return newlist
+
+
+def run():
+    search = input('Search: ')
+    page = input('Page(1-99): ')
+
+    total = get_all_items(page, search)
+    print(total)
 
 
 if __name__ == '__main__':
-    get_all_items()
+    run()
