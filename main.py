@@ -31,7 +31,6 @@ def get_all_items(page, search_keyword):
     newlist = []
     soup = BeautifulSoup(res.text, 'html.parser')
     items = soup.find_all('div', 'bl-flex-item mb-8')
-    j = 1
 
     for i in items:
         try:
@@ -69,7 +68,7 @@ def get_all_items(page, search_keyword):
         json.dump(newlist, json_data)
     print('json created')
 
-    # Writing vsc and excel file
+    # Writing csv and Excel file
     try:
         os.mkdir('data_result')
     except FileExistsError:
@@ -77,8 +76,8 @@ def get_all_items(page, search_keyword):
 
     # Create CSV
     df = pd.DataFrame(newlist)
-    df.to_csv(f'data_result/{search_keyword}.csv', index=False)
-    df.to_excel(f'data_result/{search_keyword}.xlsx', index=False)
+    df.to_csv(f'data_result/{search_keyword}_page_{page}.csv', index=False)
+    df.to_excel(f'data_result/{search_keyword}_page_{page}.xlsx', index=False)
 
     # html file
     try:
