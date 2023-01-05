@@ -2,7 +2,7 @@
 This package will display product detail from bukalapak as json, csv and excel files
 
 ## HOW IT WORK?
-This package will scrape the product from [bukalapak](https://www.bukalapak.com) account using requests and save the results in multiple formats using pandas. Here is what the package will do:
+This package will scrape the product from [bukalapak](https://www.bukalapak.com) using requests and save the results in multiple formats using pandas. Here is what the package will do:
 
 1. Use requests to scrape product detail from the given product search.
 2. Use pandas to create a DataFrame with the scraped data.
