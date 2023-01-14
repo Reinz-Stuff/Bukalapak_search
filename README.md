@@ -1,4 +1,4 @@
-# Instagram-Follower-Scrape
+# Bukalapak-Search
 This package will display product detail from bukalapak as json, csv and excel files
 
 ## HOW IT WORK?
